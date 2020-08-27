@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" name="" id="input">
+    <input type="button" id="btn" value="Add">
+    <div id="txt"></div>
+    <ol id="list"></ol>
+
+</body>
+<script>
+    // document.querySelector('#input').addEventListener('input', (event) => {
+    //     console.log(event.target.value)
+    //     document.querySelector('#txt').innerHTML = event.target.value
+    // })
+
+    document.querySelector('#btn').addEventListener('click', () => {
+        let val = document.querySelector('#input').value;
+        let li = document.createElement('li');
+        let ol = document.querySelector('#list')
+        ol.appendChild(li).innerHTML = val
+
+        document.querySelectorAll('li').forEach((elem, index) => {
+            if(index % 2 === 0) {
+                elem.style.backgroundColor = 'beige'
+            }else {
+                elem.style.backgroundColor = 'cyan'
+                }
+
+                elem.style.color = 'green'
+                elem.style.color = '#000'
+                elem.style.padding = '5px'
+                elem.style.marginBottom = '5px'
+                elem.style.borderRadius = '3px'
+                elem.style.boxShadow = '#888181 0px -1px 2px 0px'
+            })
+            document.querySelector('#input').value = "";
+    })
+</script>
+</html>

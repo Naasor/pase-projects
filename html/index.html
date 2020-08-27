@@ -3,49 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>jquery learn</title>
 </head>
 <body>
-    <div>Helloo Sundy Laughter</div>
+    <!-- This is my jQuery... -->
+    <div id="ctn">
+        <table>
+            <tr>
+                <td>First Name:</td>
+                <td><input type="text" name="" id="fname" value=""></td>
+                <td><input type="hidden" name="" id="uid"></td>
+            </tr>
+            <tr>
+                <td>Last Name:</td>
+                <td><input type="text" name="" id="lname" value=""></td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td><input type="email" name="" id="email" value=""></td>
+            </tr>
+            <tr id="pass">
+                <td>Password:</td>
+                <td><input type="password" name="" id="password" value=""></td>
+            </tr>
+            <tr>
+                <td><input type="button" value="Reset" id="rst"></td>
+                <td><input type="button" name="" id="sbmt" value="Submit"><input type="button" name="" id="updt" value="Update" style="display: none;"></td>
+                
+            </tr>
+
+            <table id="tbl">
+                <tr>
+                    <th class="tbl1">First Name</th>
+                    <th class="tbl1">Last Name</th>
+                    <th class="tbl1">Email</th>
+                    <th class="tbl1">Actions</th>
+                    
+                </tr>
+            </table>
+        </table>
+    </div>
 </body>
+<script src="./js/jquery-3.3.1.min (1).js"></script>
 <script>
-    // //creating variables
-    // // let firstName = 'Sandra';
-    // let lastName = 'Amofa';
-    // let fullName = firstName + ' ' + lastName
-    // // console.log(fullName)
+   $('#ctn').css({
+       backgroundColor: '#09b8c5',
+       color: '#fff',
+       padding: '2em',
+       fontSize: '25px',
+   })
 
-    // //if statements
-    // let age = 10;
-    // let country = 'Ghana'
+   $('.tbl1').css({
+       border: '1px solid #fdfcff',
+       paddingRight:'5em',
+   })
 
-    // if(age >= 18 || country === 'Ghana') {
-    //     // console.log('You can vote')        
-    // } else {
-    //     // console.log('You cannot vote')
-    // }
+   $('document').ready(() => {
+            
+            $.get('http://localhost:4001/users').then((res) => {
+               let tbl = document.querySelector('#tbl');
+                
+                for(user of res){
+                    let tr = tbl.appendChild(document.createElement('tr'))
+                    tr.setAttribute('class', 'ntr');
+                    tr.appendChild(document.createElement('td')).innerHTML = user.firstName
+                    tr.appendChild(document.createElement('td')).innerHTML = user.lastName
+                    tr.appendChild(document.createElement('td')).innerHTML = user.email
+                    tr.appendChild(document.createElement('td')).innerHTML = `<button id="id_${user._id}" onclick="getUserById('${user._id}','editBtn')">Edit</button><button onclick="getUserById('${user._id}','deleteBtn')">Delete</button>` 
+                }
 
-    // if (firstName === 'Sandra') {
-    //     if (firstName.length <= 5) {
-    //         //console.log('you have a long name')
-    //     } else {
-    //         // console.log('you have a short name')
-    //     }
-    // } else if (firstName === 'Asor') {
-    //     // console.log("You are here some...")
-    // }else {
-    //     // console.log('You got lost.....')
-    // }
+                console.log(document.querySelectorAll('#tbl .ntr'))
+            });
+        })
 
-    //fetching data
-    // let firstName = window.prompt('Please enter your name')
-    // alert(firstName)
+        
+            
+            // function for reseting user input
+            let reset = () => {
+                $('#fname').val('');
+                $('#lname').val('');
+                $('#email').val('');
+                $('#password').val('')
+            }
 
-    let firstName = window.prompt('Please enter your name');
-    if(firstName === 'abdul'){
-        firstName = window.prompt('Please re-enter your name again')
-    } else {
-        alert(firstName)
-    }
+            // clear user input
+            $('#rst').on('click', () => {
+                reset();
+            })
+
+            let getUserById = (userId,type) => {
+                if(type === 'editBtn'){
+                    $.ajax({
+                        type: 'GET',
+                        url: `http://localhost:4001/users/${userId}`,
+                        success: (res) => {
+                            $('#fname').val(res.firstName);
+                            $('#lname').val(res.lastName);
+                            $('#email').val(res.email);
+                            $('#uid').val(res.userId);
+                            $('#sbmt').css('display', 'none')
+                            $('#updt').css('display', 'inline')
+                            $('#pass').css('display', 'none')
+                        }
+                    })
+                } else if(type === 'deleteBtn'){
+                    $.ajax({
+                        type: 'DELETE',
+                        url: `http://127.0.0.1:4001/users/delete?userId=${userId}`,
+                        success: (res) => {
+                            getAllUsers()
+                        }
+                    })
+                }
+            }
+
+            // sending request to register user
+            $('#sbmt').on('click', () => {
+                let user = {};
+                user.firstName = $('#fname').val();
+                user.lastName = $('#lname').val();
+                user.email = $('#email').val();
+                user.password = $('#password').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:4001/register',
+                    data: user,
+                    success: (res) => {
+                        reset();
+                        getAllUsers()
+                    },
+                    error: (err) => {
+
+                    }
+                })
+            })
+
+            $('#updt').on('click', () => {
+                let user = {};
+                user.userId = $('#uid').val();
+                user.firstName = $('#fname').val();
+                user.lastName = $('#lname').val();
+                user.email = $('#email').val();
+                user.password = $('#password').val();
+
+                $.ajax({
+                    type: 'PUT',
+                    url: 'http://localhost:4001/update-user',
+                    data: user,
+                    success: (res) => {
+                        reset()
+                        getAllUsers()
+                        $('#sbmt').css('display', '')
+                        $('#updt').css('display', 'none')
+                        $('#pass').css('display', '')
+                    }
+                })
+            })
+
+            let getAllUsers = () => {
+                $.get('http://localhost:4001/users').then((res) => {
+                    
+                    let tbl = document.querySelector('#tbl');
+                    document.querySelectorAll('#tbl .ntr').forEach((elem, index) => {
+                        tbl.removeChild(elem)
+                    })
+                    for (user of res) {
+                        let tr = tbl.appendChild(document.createElement('tr'));
+                        tr.setAttribute('class', 'ntr');
+                        tr.appendChild(document.createElement('td')).innerHTML = user.firstName
+                        tr.appendChild(document.createElement('td')).innerHTML = user.lastName
+                        tr.appendChild(document.createElement('td')).innerHTML = user.email
+                        tr.appendChild(document.createElement('td')).innerHTML = `<button id="id_${user._id}" onclick="getUserById('${user._id}','editBtn')">Edit</button><button onclick="getUserById('${user._id}','deleteBtn')">Delete</button>`
+                    }
+                });
+            }
+
+    //    if(user.email === ''){
+    //        alert('Please enter email')
+    //    }
+
+    //    if(user.password === ''){
+    //        alert('Please enter password')
+    //    }
+
+    //    $('#email').val('')
+    //    $('#password').val('')
+   
 </script>
 </html>
